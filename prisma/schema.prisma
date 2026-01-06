@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// カテゴリ
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  boards    Board[]
+  createdAt DateTime @default(now())
+}
+
+// 板
+model Board {
+  id          Int      @id @default(autoincrement())
+  categoryId  Int
+  name        String
+  defaultName String   @default("名無しさん")
+  restricted  Boolean  @default(false)
+  category    Category @relation(fields: [categoryId], references: [id])
+  threads     Thread[]
+  createdAt   DateTime @default(now())
+}
+
+// スレッド
+model Thread {
+  id        Int        @id @default(autoincrement())
+  boardId   Int
+  title     String
+  resCount  Int        @default(1)
+  isFull    Boolean    @default(false)
+  board     Board      @relation(fields: [boardId], references: [id])
+  responses Response[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// レス
+model Response {
+  id         Int      @id @default(autoincrement())
+  threadId   Int
+  resNumber  Int
+  name       String
+  tripcode   String?
+  email      String?
+  body       String
+  ipAddress  String
+  userIdHash String
+  thread     Thread   @relation(fields: [threadId], references: [id])
+  createdAt  DateTime @default(now())
+}
